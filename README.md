@@ -1,1 +1,1 @@
-# makahmeystore.kh
+# makahmeystore.kh/Stor.html
