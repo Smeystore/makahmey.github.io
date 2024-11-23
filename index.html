@@ -59,6 +59,17 @@
         .reset-btn:hover {
             background-color: #ff9400;
         }
+        .download-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .download-btn:hover {
+            background-color: #0069d9;
+        }
         .inventory {
             margin-top: 20px;
         }
@@ -103,6 +114,7 @@
         </div>
         <button class="btn" onclick="addProduct()">Add Product</button>
         <button class="reset-btn" onclick="resetInventory()">Reset Inventory</button>
+        <button class="download-btn" onclick="downloadInventory()">Download Inventory</button>
     </div>
 
     <div class="inventory card">
@@ -213,6 +225,29 @@
             const productName = row.getElementsByTagName('td')[0].textContent.toLowerCase();
             row.style.display = productName.includes(searchQuery) ? '' : 'none';
         }
+    }
+
+    function downloadInventory() {
+        const products = JSON.parse(localStorage.getItem('products')) || [];
+        if (products.length === 0) {
+            alert("No inventory data to download.");
+            return;
+        }
+
+        let inventoryText = "Product Name\tPrice (Riel)\n";
+        products.forEach(product => {
+            inventoryText += `${product.name}\t${product.price} Riel\n`;
+        });
+
+        const blob = new Blob([inventoryText], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "inventory.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 </script>
 
