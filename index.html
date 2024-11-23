@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supermarket Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <h1>Supermarket Management System</h1>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Add New Product</h2>
+        <div class="form-group">
+            <label for="product-name">Product Name:</label>
+            <input type="text" id="product-name" placeholder="Enter product name">
+        </div>
+        <div class="form-group">
+            <label for="product-price">Price (Riel):</label>
+            <input type="number" id="product-price" placeholder="Enter price in Riel">
+        </div>
+        <button class="btn" onclick="addProduct()">Add Product</button>
+        <button class="reset-btn" onclick="resetInventory()">Reset Inventory</button>
+    </div>
+
+    <div class="inventory card">
+        <h2>Inventory</h2>
+        <input type="text" class="search-box" id="search-box" placeholder="Search by Product Name" onkeyup="searchProduct()">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price (Riel)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-list">
+                <!-- Product list goes here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
