@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supermarket Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .reset-btn {
+            background-color: #FFA500;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+        .reset-btn:hover {
+            background-color: #ff9400;
+        }
+        .inventory {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .search-box {
+            margin-bottom: 15px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Supermarket Management System</h1>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Add New Product</h2>
+        <div class="form-group">
+            <label for="product-name">Product Name:</label>
+            <input type="text" id="product-name" placeholder="Enter product name">
+        </div>
+        <div class="form-group">
+            <label for="product-price">Price (Riel):</label>
+            <input type="number" id="product-price" placeholder="Enter price in Riel">
+        </div>
+        <button class="btn" onclick="addProduct()">Add Product</button>
+        <button class="reset-btn" onclick="resetInventory()">Reset Inventory</button>
+    </div>
+
+    <div class="inventory card">
+        <h2>Inventory</h2>
+        <input type="text" class="search-box" id="search-box" placeholder="Search by Product Name" onkeyup="searchProduct()">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price (Riel)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-list">
+                <!-- Product list goes here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', loadInventory);
+
+    function addProduct() {
+        const name = document.getElementById('product-name').value;
+        const price = document.getElementById('product-price').value;
+
+        if (!name || !price) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        const product = { name, price };
+        saveToLocalStorage(product);
+        appendProductRow(product);
+
+        document.getElementById('product-name').value = '';
+        document.getElementById('product-price').value = '';
+    }
+
+    function appendProductRow(product) {
+        const table = document.getElementById('inventory-list');
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${product.name}</td>
+            <td class="product-price">${product.price} Riel</td>
+            <td>
+                <button onclick="editPrice(this)">Edit Price</button>
+                <button onclick="deleteProduct(this, '${product.name}')">Delete</button>
+            </td>
+        `;
+
+        table.appendChild(row);
+    }
+
+    function saveToLocalStorage(product) {
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        products.push(product);
+        localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    function loadInventory() {
+        const products = JSON.parse(localStorage.getItem('products')) || [];
+        products.forEach(appendProductRow);
+    }
+
+    function resetInventory() {
+        localStorage.removeItem('products');
+        document.getElementById('inventory-list').innerHTML = '';
+    }
+
+    function deleteProduct(button, name) {
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        products = products.filter(product => product.name !== name);
+        localStorage.setItem('products', JSON.stringify(products));
+
+        button.parentElement.parentElement.remove();
+    }
+
+    function editPrice(button) {
+        const row = button.parentElement.parentElement;
+        const priceCell = row.querySelector('.product-price');
+
+        let currentPrice = priceCell.textContent.replace(' Riel', '');
+        let newPrice = prompt("Enter new price in Riel:", currentPrice);
+
+        if (newPrice) {
+            priceCell.textContent = `${newPrice} Riel`;
+
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            const name = row.cells[0].textContent;
+            products = products.map(product => {
+                if (product.name === name) {
+                    product.price = newPrice;
+                }
+                return product;
+            });
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+    }
+
+    function searchProduct() {
+        const searchQuery = document.getElementById('search-box').value.toLowerCase();
+        const rows = document.getElementById('inventory-list').getElementsByTagName('tr');
+
+        for (let row of rows) {
+            const productName = row.getElementsByTagName('td')[0].textContent.toLowerCase();
+            row.style.display = productName.includes(searchQuery) ? '' : 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
