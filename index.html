@@ -137,8 +137,6 @@
 
         const product = { name, price };
         saveToLocalStorage(product);  // Save locally
-        // Uncomment the line below to save to GitHub API instead (requires GitHub token and configuration)
-        // saveToGitHub(product);
 
         appendProductRow(product);
 
@@ -215,38 +213,6 @@
         for (let row of rows) {
             const productName = row.getElementsByTagName('td')[0].textContent.toLowerCase();
             row.style.display = productName.includes(searchQuery) ? '' : 'none';
-        }
-    }
-
-    // GitHub API Save Example (Optional)
-    async function saveToGitHub(product) {
-        const token = 'YOUR_GITHUB_ACCESS_TOKEN';  // Replace with your GitHub token
-        const repo = 'your-username/supermarket-management-system';
-        const path = 'inventory.json';
-        const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-        // Fetch existing data if present
-        let products = JSON.parse(localStorage.getItem('products')) || [];
-        products.push(product);
-
-        const content = btoa(JSON.stringify(products));
-
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: 'Updating inventory data',
-                content: content
-            })
-        });
-
-        if (response.ok) {
-            alert('Inventory saved successfully to GitHub!');
-        } else {
-            console.error('Failed to save inventory to GitHub:', response);
         }
     }
 </script>
