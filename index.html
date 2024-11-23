@@ -59,17 +59,6 @@
         .reset-btn:hover {
             background-color: #ff9400;
         }
-        .download-btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .download-btn:hover {
-            background-color: #0069d9;
-        }
         .inventory {
             margin-top: 20px;
         }
@@ -93,6 +82,17 @@
             width: 100%;
             box-sizing: border-box;
         }
+        .download-btn {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -114,7 +114,6 @@
         </div>
         <button class="btn" onclick="addProduct()">Add Product</button>
         <button class="reset-btn" onclick="resetInventory()">Reset Inventory</button>
-        <button class="download-btn" onclick="downloadInventory()">Download Inventory</button>
     </div>
 
     <div class="inventory card">
@@ -132,6 +131,12 @@
                 <!-- Product list goes here -->
             </tbody>
         </table>
+    </div>
+
+    <div class="card">
+        <button class="download-btn" onclick="downloadBackup()">Download Backup</button>
+        <input type="file" id="file-input" style="display: none;" onchange="importBackup(this)">
+        <button class="download-btn" onclick="document.getElementById('file-input').click()">Import Backup</button>
     </div>
 </div>
 
@@ -161,13 +166,12 @@
 
         row.innerHTML = `
             <td>${product.name}</td>
-            <td>${product.price} Riel</td>
+            <td class="product-price">${product.price} Riel</td>
             <td>
                 <button onclick="editPrice(this)">Edit Price</button>
                 <button onclick="deleteProduct(this, '${product.name}')">Delete</button>
             </td>
         `;
-
         table.appendChild(row);
     }
 
@@ -197,7 +201,7 @@
 
     function editPrice(button) {
         const row = button.parentElement.parentElement;
-        const priceCell = row.cells[1];
+        const priceCell = row.querySelector('.product-price');
 
         let currentPrice = priceCell.textContent.replace(' Riel', '');
         let newPrice = prompt("Enter new price in Riel:", currentPrice);
@@ -227,27 +231,49 @@
         }
     }
 
-    function downloadInventory() {
+    // Function to Download Backup
+    function downloadBackup() {
         const products = JSON.parse(localStorage.getItem('products')) || [];
         if (products.length === 0) {
-            alert("No inventory data to download.");
+            alert("No inventory data to back up.");
             return;
         }
 
-        let inventoryText = "Product Name\tPrice (Riel)\n";
-        products.forEach(product => {
-            inventoryText += `${product.name}\t${product.price} Riel\n`;
-        });
-
-        const blob = new Blob([inventoryText], { type: "text/plain" });
+        const backupData = JSON.stringify(products, null, 2);
+        const blob = new Blob([backupData], { type: "application/json" });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = "inventory.txt";
+        a.download = "inventory_backup.json";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+    }
+
+    // Function to Import Backup
+    function importBackup(input) {
+        const file = input.files[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const products = JSON.parse(event.target.result);
+                if (Array.isArray(products)) {
+                    localStorage.setItem('products', JSON.stringify(products));
+                    loadInventory();
+                    alert("Inventory backup restored successfully!");
+                } else {
+                    alert("Invalid backup file format.");
+                }
+            } catch (error) {
+                alert("Error reading backup file: " + error.message);
+            }
+        };
+        reader.readAsText(file);
     }
 </script>
 
